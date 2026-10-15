@@ -1,0 +1,8 @@
+{
+  "name": "clearance-laya",
+  "private": true,
+  "type": "module",
+  "description": "Local Laya risk service for Clearance (two calibrated yes/no questions per action)",
+  "scripts": { "start": "node server.mjs" },
+  "dependencies": { "@receptron/laya": "0.1.2" }
+}

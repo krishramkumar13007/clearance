@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clearance</title>
+<style>
+:root {
+  --bg: #f7f7f5; --panel: #ffffff; --ink: #1c1d1f; --muted: #6b6f76; --line: #e3e3df;
+  --allow: #1f7a4d; --allow-bg: #e6f4ec; --audit: #2f6f8f; --audit-bg: #e5f0f6;
+  --ask: #8a5a00; --ask-bg: #fdf1d8; --block: #b4232c; --block-bg: #fbe5e6;
+  --taint: #7a3fb0; --taint-bg: #f1e8fa; --accent: #1c1d1f;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121315; --panel: #1b1c1f; --ink: #ececea; --muted: #9a9ea6; --line: #2c2e33;
+    --allow: #5fcf95; --allow-bg: #16301f; --audit: #7cc0e0; --audit-bg: #15272f;
+    --ask: #f0bd4f; --ask-bg: #33280f; --block: #f07b81; --block-bg: #3a1718;
+    --taint: #c79cf0; --taint-bg: #2a1d38; --accent: #ececea;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 14px/1.45 ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif; }
+header { display: flex; align-items: center; gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--line);
+  background: var(--panel); flex-wrap: wrap; }
+header h1 { font-size: 16px; margin: 0; letter-spacing: .02em; }
+header .sub { color: var(--muted); font-size: 13px; }
+header .spacer { flex: 1; }
+select, input, button { font: inherit; color: inherit; }
+select, input { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+button { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+button.deny { color: var(--block); }
+main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; padding: 16px 20px; max-width: 1400px; margin: 0 auto; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; padding: 12px 16px; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.panel h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.stat { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.stat .n { font-size: 22px; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 12px; color: var(--muted); }
+.feed { width: 100%; border-collapse: collapse; font-size: 13px; }
+.feed td { padding: 7px 8px; border-top: 1px solid var(--line); vertical-align: top; }
+.feed tr.new td { animation: flash 1.2s ease-out; }
+@keyframes flash { from { background: var(--ask-bg); } to { background: transparent; } }
+.feed .seq { color: var(--muted); font-variant-numeric: tabular-nums; width: 36px; }
+.feed .what { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; word-break: break-all; }
+.feed .by { color: var(--muted); font-size: 12px; }
+.pill { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .03em; padding: 2px 7px; border-radius: 999px; white-space: nowrap; }
+.ALLOW { color: var(--allow); background: var(--allow-bg); }
+.ALLOW_AUDIT { color: var(--audit); background: var(--audit-bg); }
+.ASK { color: var(--ask); background: var(--ask-bg); }
+.BLOCK { color: var(--block); background: var(--block-bg); }
+.TAINT { color: var(--taint); background: var(--taint-bg); }
+.ask-card { border: 1px solid var(--ask); background: var(--ask-bg); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+.ask-card .what { font-family: ui-monospace, Menlo, monospace; font-size: 12px; word-break: break-all; margin: 6px 0; color: var(--ink); }
+.ask-card .why { font-size: 12px; color: var(--muted); }
+.ask-card .row { display: flex; gap: 8px; margin-top: 8px; }
+.empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
+.perm { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; font-size: 13px; }
+.perm .t { font-weight: 600; }
+.perm .m { color: var(--muted); font-size: 12px; margin-top: 4px; }
+.perm.off { opacity: .55; }
+.ask-card ul { margin: 4px 0 0 16px; padding: 0; font-size: 12px; }
+.cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cmp .stat .n { font-size: 26px; }
+.cmp .with .n { color: var(--allow); }
+.quiet { display: flex; align-items: baseline; gap: 8px; margin-top: 10px; padding: 10px; border-radius: 8px;
+  background: var(--allow-bg); color: var(--allow); font-size: 14px; }
+.quiet .qn { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.tally { margin-top: 8px; font-size: 12px; color: var(--muted); }
+.side { display: flex; flex-direction: column; gap: 16px; }
+.auto { width: 100%; font-size: 13px; border-collapse: collapse; }
+.auto td { padding: 4px 0; border-top: 1px solid var(--line); }
+.status { font-size: 12px; color: var(--muted); }
+.status.live::before { content: "● "; color: var(--allow); }
+#login { max-width: 420px; margin: 80px auto; }
+#login p { color: var(--muted); }
+#login input { width: 100%; margin: 8px 0 12px; }
+</style>
+</head>
+<body>
+<div id="login" class="panel" hidden>
+  <h2>Clearance dashboard</h2>
+  <p>Paste the human token printed when the gateway started. It stays in this tab only.</p>
+  <input id="tok" type="password" autocomplete="off" placeholder="human token">
+  <button class="primary" id="go">Open</button>
+</div>
+<div id="app" hidden>
+  <header>
+    <h1>Clearance</h1>
+    <span class="sub">give permission once · your assistant knows when to ask again</span>
+    <span class="spacer"></span>
+    <select id="sess" aria-label="Session"></select>
+    <span id="taint"></span>
+    <span id="status" class="status">connecting</span>
+  </header>
+  <main>
+    <section class="panel">
+      <h2>Live trajectory</h2>
+      <table class="feed"><tbody id="feed"></tbody></table>
+      <div id="feed-empty" class="empty">No actions yet. Decisions appear here as the agent works.</div>
+    </section>
+    <div class="side">
+      <section class="panel">
+        <h2>Waiting for you</h2>
+        <div id="asks"></div>
+        <div id="asks-empty" class="empty">Nothing needs approval.</div>
+      </section>
+      <section class="panel" id="p-interrupt" hidden>
+        <h2>Your attention</h2>
+        <div class="cmp">
+          <div class="stat"><div class="n" id="i-without-pct">0%</div><div class="l" id="i-without-l">of emails wait for your OK without Clearance</div></div>
+          <div class="stat with"><div class="n" id="i-with-pct">0%</div><div class="l" id="i-with-l">with Clearance</div></div>
+        </div>
+        <div class="quiet"><span class="qn" id="i-quiet">0</span><span id="i-quiet-l">sent inside your permission without asking you</span></div>
+        <div class="tally" id="i-tally"></div>
+      </section>
+      <section class="panel">
+        <h2>Session</h2>
+        <div class="stats">
+          <div class="stat"><div class="n" id="n-allow">0</div><div class="l">allowed</div></div>
+          <div class="stat"><div class="n" id="n-ask">0</div><div class="l">asked</div></div>
+          <div class="stat"><div class="n" id="n-block">0</div><div class="l">blocked</div></div>
+          <div class="stat"><div class="n" id="n-rate">0%</div><div class="l">interventions</div></div>
+        </div>
+      </section>
+      <section class="panel" id="p-perms" hidden>
+        <h2>Your permissions</h2>
+        <div id="perms"></div>
+        <div id="sugs"></div>
+      </section>
+      <section class="panel" id="p-fp">
+        <h2>Agent fingerprint</h2>
+        <div class="status" id="fp"></div>
+        <table class="auto"><tbody id="auto"></tbody></table>
+      </section>
+    </div>
+  </main>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+let token = null, current = null, es = null, sessions = [];
+// Served at /dashboard locally and at /v/<id>/dashboard in the hosted demo: API paths are relative to this page.
+const BASE = location.pathname.replace(/dashboard\/?$/, "");
+const url = (path) => BASE + path.replace(/^\//, "");
+try { token = sessionStorage.getItem("clearance-human"); } catch (e) {}
+// The hosted demo hands the token over in the fragment, which never reaches the server; keep it out of the bar.
+if (location.hash.startsWith("#token=")) {
+  token = decodeURIComponent(location.hash.slice(7));
+  try { sessionStorage.setItem("clearance-human", token); } catch (e) {}
+  history.replaceState(null, "", location.pathname + location.search);
+}
+
+async function api(path, opts = {}) {
+  const r = await fetch(url(path), { ...opts, headers: { "Authorization": "Bearer " + token,
+    "Content-Type": "application/json", ...(opts.headers || {}) } });
+  if (r.status === 401) { showLogin(); throw new Error("unauthorized"); }
+  return r.json();
+}
+function showLogin() { $("app").hidden = true; $("login").hidden = false; }
+$("go").onclick = () => {
+  token = $("tok").value.trim();
+  try { sessionStorage.setItem("clearance-human", token); } catch (e) {}
+  start();
+};
+function esc(s) { return String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+const label = { ALLOW: "ALLOW", ALLOW_AUDIT: "ALLOW · AUDIT", ASK: "ASK", BLOCK: "BLOCK" };
+
+function byLabel(by) {
+  if (!by) return "";
+  if (by.startsWith("permission:")) return "within your permission";
+  return ({ "permission.request": "asks once", "scope.recipient": "new recipient", "scope.no_permission": "no permission",
+            "scope.read": "outside permission", "scope.limit": "limit reached", "scope.expired": "permission expired",
+            "judge.new_commitment": "new commitment", "judge.outside_sharing": "outside sharing",
+            "judge.off_purpose": "off purpose", "judge.unavailable": "couldn't check" })[by] || by;
+}
+const rowsBySeq = {};
+function addRow(e, fresh) {
+  if (e.type === "resolved") {
+    const cell = rowsBySeq[e.seq];
+    if (cell) cell.insertAdjacentHTML("beforeend", e.resolution === "approved_once"
+      ? ` <span class="pill ALLOW">approved</span>` : ` <span class="pill BLOCK">${esc(e.resolution)}</span>`);
+    return;
+  }
+  $("feed-empty").hidden = true;
+  const tr = document.createElement("tr");
+  if (fresh) tr.className = "new";
+  if (e.type === "taint") {
+    tr.innerHTML = `<td class="seq"></td><td><span class="pill TAINT">TAINT</span></td>
+      <td class="what">session read secrets from ${esc(e.path)}</td><td class="by">ledger</td>`;
+  } else {
+    tr.innerHTML = `<td class="seq">${e.seq}</td><td><span class="pill ${e.decision}">${label[e.decision]}</span></td>
+      <td class="what">${esc(e.surface)}.${esc(e.op)} ${esc(e.summary)}</td><td class="by">${esc(byLabel(e.by))}</td>`;
+    rowsBySeq[e.seq] = tr.children[1];
+  }
+  $("feed").prepend(tr);
+}
+
+async function refreshSide() {
+  if (!current) return;
+  const [sum, asks] = await Promise.all([api(`/sessions/${current}/summary`), api("/asks")]);
+  const assistant = !!sum.interruptions;
+  $("p-interrupt").hidden = !assistant; $("p-perms").hidden = !assistant; $("p-fp").hidden = assistant;
+  if (assistant) {
+    const it = sum.interruptions, n = it.emails, pct = (k) => n ? Math.round(100 * k / n) + "%" : "–";
+    $("i-without-pct").textContent = pct(n);
+    $("i-without-l").textContent = n ? `${n} of ${n} emails would each wait for your OK` : "of emails wait for your OK without Clearance";
+    $("i-with-pct").textContent = pct(it.emails_asked);
+    $("i-with-l").textContent = n ? `${it.emails_asked} of ${n} stopped for you, after ${it.permission_cards} permission up front`
+      : "with Clearance";
+    $("i-quiet").textContent = it.emails_quiet;
+    $("i-quiet-l").textContent = `${it.emails_quiet === 1 ? "email" : "emails"} sent inside your permission without asking you`;
+    $("i-tally").textContent = `Approval cards so far: ${it.with_clearance} with Clearance, ${it.without_clearance} without.`;
+    const [perms, sugs] = await Promise.all([api("/permissions"), api("/suggestions")]);
+    $("perms").innerHTML = perms.length ? perms.map(p => `
+      <div class="perm ${p.active ? "" : "off"}">
+        <div class="t">${esc(p.purpose)}</div>
+        <div class="m">To ${esc(p.recipients.join(", "))}</div>
+        <div class="m">May share: ${esc(p.may_share.join(", ") || "nothing specified")} · Never: ${esc(p.must_not.join(", ") || "—")}</div>
+        <div class="m">${p.uses}/${p.max_uses} used${p.expires_at ? " · until " + new Date(p.expires_at * 1000).toLocaleDateString() : ""}${p.revoked ? " · revoked" : ""}</div>
+        ${p.active ? `<div class="row" style="margin-top:6px"><button class="deny" data-revoke="${p.id}">Revoke</button></div>` : ""}
+      </div>`).join("") : `<div class="empty">No permissions yet. Your assistant will ask once.</div>`;
+    $("sugs").innerHTML = sugs.map(x => `
+      <div class="ask-card"><div class="why">You've approved ${esc(x.recipient)} ${x.approvals} times.</div>
+      <div class="row"><button class="primary" data-sug="${x.id}">Add to this permission</button></div></div>`).join("");
+  }
+  const c = sum.counts || {};
+  $("n-allow").textContent = (c.ALLOW || 0) + (c.ALLOW_AUDIT || 0);
+  $("n-ask").textContent = c.ASK || 0;
+  $("n-block").textContent = c.BLOCK || 0;
+  $("n-rate").textContent = Math.round((sum.intervention_rate || 0) * 100) + "%";
+  $("taint").innerHTML = (sum.taint || []).length ? `<span class="pill TAINT">tainted: ${esc(sum.taint.join(", "))}</span>` : "";
+  const mine = asks.filter(a => a.session_id === current);
+  $("asks-empty").hidden = mine.length > 0;
+  const key = mine.map(a => a.ask_id).join(",");
+  if (key !== $("asks").dataset.key) { $("asks").dataset.key = key; $("asks").innerHTML = mine.map(askCard).join(""); }
+  const s = sessions.find(x => x.session_id === current);
+  if (s) {
+    $("fp").textContent = `${s.model} · ${s.fingerprint_id}${s.sandboxed ? " · sandboxed" : ""}`;
+    const auto = await api(`/fingerprints/${s.fingerprint_id}/autonomy`);
+    $("auto").innerHTML = Object.entries(auto).map(([k, v]) =>
+      `<tr><td>${k}</td><td>${v.level}</td><td class="status">${v.actions} actions</td></tr>`).join("");
+  }
+}
+
+function askCard(a) {
+  const prop = a.detail && a.detail.proposal;
+  if (prop) {
+    return `<div class="ask-card">
+      <span class="pill ASK">permission request</span>
+      <div class="what" style="font-family:inherit;font-size:13px"><b>${esc(prop.purpose)}</b></div>
+      <ul><li>Send to: ${esc(prop.recipients.join(", "))}</li>
+        <li>May share: ${esc(prop.may_share.join(", "))}</li>
+        <li>Never: ${esc(prop.must_not.join(", "))}</li>
+        <li>Up to ${prop.max_uses} emails, until ${new Date(prop.expires_at * 1000).toLocaleDateString()}</li></ul>
+      <div class="row"><button class="primary" data-ask="${a.ask_id}" data-ok="1">Allow</button>
+      <button class="deny" data-ask="${a.ask_id}" data-ok="0">Don't allow</button></div></div>`;
+  }
+  const email = a.surface === "email";
+  return `<div class="ask-card">
+    <span class="pill ASK">${email ? "needs your OK" : esc(a.surface) + "." + esc(a.op)}</span>
+    <div class="what">${esc(a.summary)}</div>
+    <div class="why">${esc(a.reason)} · expires in ${a.expires_in}s</div>
+    <div class="row"><button class="primary" data-ask="${a.ask_id}" data-ok="1">${email ? "Send anyway" : "Approve once"}</button>
+    <button class="deny" data-ask="${a.ask_id}" data-ok="0">${email ? "Don't send" : "Deny"}</button></div>
+  </div>`;
+}
+
+$("perms").onclick = async (ev) => {
+  const b = ev.target.closest("button[data-revoke]");
+  if (!b) return;
+  b.disabled = true;
+  await api(`/permissions/${b.dataset.revoke}/revoke`, { method: "POST" }).catch(() => {});
+  refreshSide();
+};
+$("sugs").onclick = async (ev) => {
+  const b = ev.target.closest("button[data-sug]");
+  if (!b) return;
+  b.disabled = true;
+  await api(`/suggestions/${b.dataset.sug}/accept`, { method: "POST" }).catch(() => {});
+  refreshSide();
+};
+
+$("asks").onclick = async (ev) => {
+  const b = ev.target.closest("button[data-ask]");
+  if (!b) return;
+  b.disabled = true;
+  await api(`/asks/${b.dataset.ask}/resolve`, { method: "POST", body: JSON.stringify({ approve: b.dataset.ok === "1" }) }).catch(() => {});
+  refreshSide();
+};
+
+async function openSession(id) {
+  current = id;
+  $("feed").innerHTML = ""; $("feed-empty").hidden = false;
+  for (const k in rowsBySeq) delete rowsBySeq[k];
+  if (es) es.close();
+  const past = await api(`/sessions/${id}/events`);
+  past.filter(e => e.type !== "ask").forEach(e => addRow(e, false));
+  es = new EventSource(url(`/sessions/${id}/stream?token=${encodeURIComponent(token)}`));
+  es.onopen = () => { $("status").textContent = "live"; $("status").className = "status live"; };
+  es.onerror = () => { $("status").textContent = "reconnecting"; $("status").className = "status"; };
+  let seen = past.length;
+  es.onmessage = (m) => {
+    const e = JSON.parse(m.data);
+    if (seen > 0) { seen--; return; }  // the stream replays history first
+    if (e.type !== "ask") addRow(e, true);
+    refreshSide();
+  };
+  refreshSide();
+}
+
+async function loadSessions() {
+  sessions = await api("/sessions");
+  const sel = $("sess");
+  const prev = sel.value;
+  sel.innerHTML = sessions.map(s => `<option value="${s.session_id}">${esc(s.workspace)} · ${s.session_id}</option>`).join("")
+    || `<option value="">no sessions</option>`;
+  if (prev && sessions.some(s => s.session_id === prev)) sel.value = prev;
+  if (sel.value && sel.value !== current) openSession(sel.value);
+}
+$("sess").onchange = () => openSession($("sess").value);
+
+async function start() {
+  if (!token) return showLogin();
+  $("login").hidden = true; $("app").hidden = false;
+  await loadSessions();
+  setInterval(() => { loadSessions(); refreshSide(); }, 4000);
+}
+start();
+</script>
+</body>
+</html>

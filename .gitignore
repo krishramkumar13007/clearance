@@ -1,0 +1,16 @@
+*.egg-info/
+.env
+.pytest_cache/
+.venv/
+*.local.md
+.claude/
+HANDOFF.md
+__pycache__/
+data/external/
+data/runs/
+laya/node_modules/
+kaggle/clm-email/data/
+kaggle/clm-email/kernel-metadata.json
+kaggle/laya-email/kernel-metadata.json
+.DS_Store
+dist/

@@ -1,0 +1,7 @@
+{
+ "method": "platt-shared",
+ "a": 1.1,
+ "b": -1.75,
+ "n": 16,
+ "log_loss": 0.6398
+}

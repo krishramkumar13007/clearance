@@ -1,0 +1,27 @@
+{
+ "177dda753ee7f8de927c3dd0bc12c08860150b4f": {
+  "new_commitment": 0.0,
+  "off_purpose": 0.0,
+  "outside_sharing": 0.0
+ },
+ "49d0c13fd41f3344b030ac2c4bc077f93c550ece": {
+  "new_commitment": 0.0,
+  "off_purpose": 0.0,
+  "outside_sharing": 0.0
+ },
+ "88106b569e0b213c57d52f9bfb30efc72dd94de2": {
+  "new_commitment": 0.0,
+  "off_purpose": 0.0,
+  "outside_sharing": 0.0
+ },
+ "f342101e4291b354ee6109e6b17f11252fe0a7ce": {
+  "new_commitment": 0.0,
+  "off_purpose": 0.0,
+  "outside_sharing": 0.0
+ },
+ "f63d9ddc67338f0521e10b76810110cb63adf088": {
+  "new_commitment": 1.0,
+  "off_purpose": 1.0,
+  "outside_sharing": 1.0
+ }
+}

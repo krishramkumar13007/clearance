@@ -1,0 +1,37 @@
+{
+ "laya": {
+  "scale": 1.0,
+  "realized_cost_calib": 10.0,
+  "n": 16
+ },
+ "laya-calibrated": {
+  "scale": 1.0,
+  "realized_cost_calib": 10.0,
+  "n": 16
+ },
+ "nemotron": {
+  "scale": 0.199526,
+  "realized_cost_calib": 0.0,
+  "n": 16
+ },
+ "clm": {
+  "scale": 0.398107,
+  "realized_cost_calib": 7.0,
+  "n": 16
+ },
+ "clm-zero": {
+  "scale": 1.0,
+  "realized_cost_calib": 10.0,
+  "n": 16
+ },
+ "laya-rlcd": {
+  "scale": 1.0,
+  "realized_cost_calib": 20.0,
+  "n": 16
+ },
+ "laya-rlcd-s1": {
+  "scale": 0.050119,
+  "realized_cost_calib": 0.0,
+  "n": 16
+ }
+}

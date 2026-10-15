@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clearance demo</title>
+<style>
+:root {
+  --bg: #f7f7f5; --panel: #ffffff; --ink: #1c1d1f; --muted: #6b6f76; --line: #e3e3df;
+  --ask: #8a5a00; --ask-bg: #fdf1d8; --allow: #1f7a4d; --accent: #1c1d1f; --accent-ink: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121315; --panel: #1b1c1f; --ink: #ececea; --muted: #9a9ea6; --line: #2c2e33;
+    --ask: #f0bd4f; --ask-bg: #33280f; --allow: #5fcf95; --accent: #ececea; --accent-ink: #121315;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif; }
+main { max-width: 640px; margin: 0 auto; padding: 56px 16px 64px; }
+h1 { font-size: 32px; line-height: 1.2; margin: 0 0 12px; letter-spacing: -0.01em; }
+.lede { font-size: 19px; color: var(--muted); margin: 0 0 32px; }
+ol { padding-left: 20px; margin: 0 0 32px; }
+li { margin: 0 0 10px; }
+li b { font-weight: 600; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px; }
+button { font: inherit; font-weight: 600; background: var(--accent); color: var(--accent-ink); border: 0;
+  border-radius: 8px; padding: 12px 20px; cursor: pointer; }
+button:disabled { opacity: .55; cursor: default; }
+.note { color: var(--muted); font-size: 14px; margin: 12px 0 0; }
+.err { color: var(--ask); background: var(--ask-bg); border-radius: 8px; padding: 10px 12px; margin: 12px 0 0; }
+a { color: inherit; }
+footer { color: var(--muted); font-size: 14px; margin-top: 40px; }
+h2 { font-size: 20px; margin: 40px 0 10px; }
+.stakes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 32px; }
+.stakes .panel { padding: 16px; }
+.stakes .n { font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.stakes .bad .n { color: var(--ask); }
+.stakes .good .n { color: var(--allow); }
+.stakes p { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
+.kinds { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+.kinds li { margin: 0; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 14px; }
+code { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px; }
+@media (max-width: 520px) { .stakes { grid-template-columns: 1fr; } h1 { font-size: 26px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Give permission once. Your assistant knows when to ask again.</h1>
+  <p class="lede">Clearance sits between an AI assistant and your email. You approve a standing permission one time;
+    routine follow-ups then go out quietly, and only a draft that crosses the line comes back to you.</p>
+  <div class="stakes">
+    <div class="panel bad"><div class="n">100%</div>
+      <p>An assistant that checks every email with you asks every single time. By the twentieth "yes" you stop
+        reading, and the one that matters slips through.</p></div>
+    <div class="panel good"><div class="n">1 in 16</div>
+      <p>On 34 test emails, Clearance asked about 1 in 16 routine ones and caught all 18 that needed you:
+        a promised deadline, a quoted price, a new recipient.</p></div>
+  </div>
+  <ol>
+    <li><b>One permission card.</b> The assistant asks to send routine follow-ups on a pilot project to four people. Approve it.</li>
+    <li><b>Quiet sends.</b> Notes, status and scope replies go out without asking you.</li>
+    <li><b>One exception.</b> A draft promises a Monday go-live. Clearance stops it and says why. Your call.</li>
+  </ol>
+  <div class="panel">
+    <button id="go">Start the demo</button>
+    <p class="note" id="status">Takes about a minute. It runs on a mock mailbox, so nothing is actually sent.</p>
+    <p class="err" id="err" hidden></p>
+  </div>
+  <h2>Not just email</h2>
+  <p>Approval fatigue shows up wherever an assistant acts for you. Asking about everything trains people to click
+    yes; asking about nothing is how mistakes go out. Clearance handles email and coding agents today, and the
+    same shape fits the rest: one permission with clear edges, quiet work inside it, and a card only at the edge.</p>
+  <ul class="kinds">
+    <li>Email and messages</li><li>Calendar invites</li><li>Purchases and payments</li><li>Sharing files</li>
+    <li>Forms and sign-ups</li><li>Coding agents</li>
+  </ul>
+  <h2>Add it to your assistant</h2>
+  <p>Clearance is a layer between the assistant and the tools that act. The assistant asks Clearance for a
+    permission once, then sends every action through it: inside the permission, it runs; at the edge, you get one
+    card that says why. It plugs in as an MCP server (<code>clearance-mcp</code>) or over plain HTTP, so an
+    assistant only has to route its actions through it.</p>
+  <footer>The judge is Nemotron 3 Super on Nebius Token Factory.
+    <a href="https://github.com/krishramkumar13007/clearance">How it works and how it was evaluated</a>.</footer>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+fetch("demo/status").then(r => r.json()).then(s => {
+  if (s.live_runs_left_today === 0)
+    $("status").textContent += " Today's live judge budget is used up, so this run replays Nemotron's saved answers.";
+}).catch(() => {});
+$("go").onclick = async () => {
+  $("go").disabled = true; $("err").hidden = true;
+  try {
+    const r = await fetch("demo/start", { method: "POST" });
+    const body = await r.json();
+    if (!r.ok) throw new Error(body.detail || "Couldn't start the demo.");
+    location.href = body.dashboard;
+  } catch (e) {
+    $("err").textContent = e.message; $("err").hidden = false; $("go").disabled = false;
+  }
+};
+</script>
+</body>
+</html>
