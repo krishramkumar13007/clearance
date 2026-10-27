@@ -22,8 +22,10 @@ echo 'NEBIUS_API_KEY=...' > .env              # Token Factory key, gitignored
 uv run python -m clearance assistant-demo     # open the printed dashboard URL, paste the printed human token
 ```
 
+No Token Factory key? Run `uv run python -m clearance serve-demo --host 127.0.0.1` and open http://127.0.0.1:7860: with no key it replays Nemotron's recorded answers for the same drafts, and every decision still comes from Clearance's code.
+
 1. **One permission.** The assistant asks once: "Routine follow-ups on the Q4 pilot", to four named contacts, may share meeting notes, next steps, pilot scope and setup status, never pricing, new deadlines or commitments on your behalf, at most 10 emails, for 5 days. You approve it on a single card.
-2. **Quiet work.** It reads the threads from those contacts and sends three replies without asking.
+2. **Quiet work.** It reads the threads from those contacts and sends four routine replies without asking.
 3. **One meaningful exception.** A contact asks whether you can commit to a Monday go-live, and the natural reply says yes. Clearance stops it: "This draft makes a new commitment on your behalf." Send anyway or don't send.
 4. **What it leaves alone.** A vendor email outside the permission is never read or answered.
 5. **The count.** 2 interruptions with Clearance (the permission and the exception) against 5 if every email needed your OK.
